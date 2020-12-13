@@ -5,11 +5,12 @@
 
 struct Livro {
 	char titulo[50] = "", classificacao[50] = "", autor[50] = "";
-  int qtd = 0, edicao = 0, ano = 0, reservado = 0; // 0 = disponível, 1 = indisponível
+  int qtd = 0, edicao = 0, ano = 0;
 };
 
 struct User {
-  char nome[50] = "", sobrenome[50] = "", matricula[50] = "", cpf[12] = "";
+  char nome[50] = "", sobrenome[50] = "", matricula[50] = "", cpf[20] = "";
+  int reservados = 0;
 };
 
 void cadastroL(struct Livro L[]){
@@ -25,7 +26,7 @@ void cadastroL(struct Livro L[]){
     printf("Quantidade de cópias disponíveis: ");
     scanf("%d", &L[cont].qtd);  
     if(L[cont].qtd < 1) {
-      printf("Ao menos uma cópia deve estar disponível para exemplar.\n");
+      printf("\n[ERRO] Ao menos uma cópia deve estar disponível para exemplar.\n\n");
     } else {
       break;
     }
@@ -34,7 +35,6 @@ void cadastroL(struct Livro L[]){
   scanf("%d", &L[cont].edicao);
   printf("Ano de publicação do livro: ");
   scanf("%d", &L[cont].ano);
-  L[cont].reservado = 0;
   printf("\nCadastrando livro...\n");
   sleep(1);
   printf("\nLivro cadastrado com sucesso!\n");
@@ -43,7 +43,7 @@ void cadastroL(struct Livro L[]){
 }
 
 void atualizarL(struct Livro L[]){
-  int op = 0, att = 0;
+  int op = 0, att = 0, cont = 0;
   if(strcmp(L[0].titulo, "") == 0) {
     printf("\nNenhum livro para atualizar.\n");
     printf("\nRetornando ao menu...\n");
@@ -53,7 +53,7 @@ void atualizarL(struct Livro L[]){
     printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
     printf("Qual livro deseja atualizar? Digite o número do livro após a listagem.\n");
     sleep(2);
-    for (int i = 0; L[i].ano != 0; i++) {
+    for (int i = 0; strcmp(L[i].titulo, "") != 0; i++) {
         printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
         printf("[%d]:\n", i + 1);
         printf("Título do livro %d: %s\n", i + 1, L[i].titulo);
@@ -62,11 +62,19 @@ void atualizarL(struct Livro L[]){
         printf("Quantidade de cópias disponíveis do livro %d: %d\n", i + 1, L[i].qtd);
         printf("Edição do livro %d: %d\n", i + 1, L[i].edicao);
         printf("Ano de publicação do livro %d: %d\n", i + 1, L[i].ano);
+        cont++;
     }
   }
-  printf("\nLivro a ser atualizado: ");
-  scanf("%d", &op);
-  op -= 1;
+  while(1){
+    printf("\nLivro a ser atualizado: ");
+    scanf("%d", &op);
+    if(op > cont || op <= 0) {
+      printf("\n[ERRO] Opção inválida. Escolha uma opção de livro disponível.\n\n");
+    } else {
+      op--;
+      break;
+    }
+  }
   printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
   printf("O que deseja alterar?\n\n");
   while(1){
@@ -76,7 +84,7 @@ void atualizarL(struct Livro L[]){
     if(att == 1 || att == 2 || att == 3 || att == 4 || att == 5 || att == 6) {
       break;
     } else {
-      printf("Opção inválida, selecione corretamente.\n\n");
+      printf("\n[ERRO] Opção inválida, selecione corretamente.\n\n");
     }
   }  
   printf("\n");
@@ -98,7 +106,7 @@ void atualizarL(struct Livro L[]){
         printf("Nova quantidade: ");
         scanf("%d", &L[op].qtd);
         if(L[op].qtd < 1) {
-          printf("Ao menos uma cópia deve estar disponível para exemplar.\n");
+          printf("\n[ERRO] Ao menos uma cópia deve estar disponível para exemplar.\n\n");
         } else {
           break;
         }
@@ -115,9 +123,9 @@ void atualizarL(struct Livro L[]){
     default:
       break;
   }
-  printf("\nAlterando...\n");
+  printf("\nAlterando dados do livro...\n");
   sleep(1);
-  printf("\nAtualizado com sucesso!\n");
+  printf("\nLivro atualizado com sucesso!\n");
 }
 
 void cadastroU(struct User U[]){
@@ -132,12 +140,13 @@ void cadastroU(struct User U[]){
   while(1){
     printf("CPF do usuário: ");
     scanf(" %[^\n]s", U[cont].cpf);  
-    if(strlen(U[cont].cpf) < 11 || strlen(U[cont].cpf) > 14) {
-      printf("CPF deve conter 11 caractéres (sem . -) ou 14 caractéres (com . -).\n");
+    if(strlen(U[cont].cpf) != 14) {
+      printf("\n[ERRO] CPF deve conter \".\" e \"-\" (exemplo: 123.456.789-00)\n\n");
     } else {
       break;
-    }
-  } 
+    } 
+  }
+  U[cont].reservados = 0; 
   printf("\nCadastrando usuário...\n");
   sleep(1);
   printf("\nUsuário cadastrado com sucesso!\n");
@@ -146,15 +155,85 @@ void cadastroU(struct User U[]){
 }
 
 void atualizarU(struct User U[]){
+  int op = 0, att = 0, cont = 0;
+  if(strcmp(U[0].cpf, "") == 0) {
+    printf("\nNenhum usuário para atualizar.\n");
+    printf("\nRetornando ao menu...\n");
+    sleep(1);
+    return;
+  } else {
+    printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+    printf("Qual usuário deseja atualizar? Digite o número do usuário após a listagem.\n");
+    sleep(2);
+    for (int i = 0; strcmp(U[i].cpf, "") != 0; i++) {
+        printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+        printf("[%d]:\n", i + 1);
+        printf("Nome do usuário %d: %s\n", i + 1, U[i].nome);
+        printf("Sobrenome do usuário %d: %s\n", i + 1, U[i].sobrenome);
+        printf("Matrícula do usuário %d: %s\n", i + 1, U[i].matricula);
+        printf("CPF do usuário %d: %s\n", i + 1, U[i].cpf);
+        cont++;
+    }
+  }
+  while(1){
+    printf("\nUsuário a ser atualizado: ");
+    scanf("%d", &op);
+    if(op > cont || op <= 0){
+      printf("\n[ERRO] Opção inválida. Escolha uma opção de usuário disponível.\n\n");
+    }
+  }
+  printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+  printf("O que deseja alterar?\n\n");
+  while(1){
+    printf("1- Nome\n2- Sobrenome\n3- Matrícula\n4- CPF\n\n");
+    printf("Opção escolhida: ");
+    scanf("%d", &att);
+    if(att == 1 || att == 2 || att == 3 || att == 4) {
+      break;
+    } else {
+      printf("\n[ERRO] Opção inválida, selecione corretamente.\n\n");
+    }
+  }  
+  printf("\n");
+  switch(att) {
+    case 1:
+      printf("Novo nome: ");
+      scanf(" %[^\n]s", U[op].nome);
+      break;
+    case 2:
+      printf("Novo sobrenome: ");
+      scanf(" %[^\n]s", U[op].sobrenome);
+      break;
+    case 3:
+      printf("Nova matrícula: ");
+      scanf(" %[^\n]s", U[op].matricula);
+      break;
+    case 4:
+      while(1){
+        printf("Novo CPF: ");
+        scanf(" %[^\n]s", U[op].cpf);  
+        if(strlen(U[op].cpf) != 14) {
+          printf("\n[ERRO] CPF deve conter \".\" e \"-\" (exemplo: 123.456.789-00)\n\n");
+        } else {
+          break;
+        }
+      } 
+      break;
+    default:
+      break;
+  }
+  printf("\nAlterando dados do usuário...\n");
+  sleep(1);
+  printf("\nUsuário atualizado com sucesso!\n");
 }
 
-void mostra(struct Livro L[]){
+void mostraL(struct Livro L[]){
   if(strcmp(L[0].titulo, "") == 0) {
     printf("\nNenhum livro para mostrar.\n");
     printf("\nRetornando ao menu...\n");
     sleep(1);
   } else {
-    for (int i = 0; L[i].ano != 0; i++) {
+    for (int i = 0; strcmp(L[i].titulo, "") != 0; i++) {
       printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
       printf("Título do livro %d: %s\n", i + 1, L[i].titulo);
       printf("Classificação do livro %d: %s\n", i + 1, L[i].classificacao);
@@ -167,10 +246,163 @@ void mostra(struct Livro L[]){
   }
 }
 
-void reservar(struct Livro L[]){
+void mostraU(struct User U[]){
+  if(strcmp(U[0].cpf, "") == 0) {
+    printf("\nNenhum usuário para mostrar.\n");
+    printf("\nRetornando ao menu...\n");
+    sleep(1);
+  } else {
+    for (int i = 0; strcmp(U[i].cpf, "") != 0; i++) {
+      printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+      printf("Nome do usuário %d: %s\n", i + 1, U[i].nome);
+      printf("Sobrenome do usuário %d: %s\n", i + 1, U[i].sobrenome);
+      printf("Matrícula do usuário %d: %s\n", i + 1, U[i].matricula);
+      printf("CPF do usuário %d: %s\n", i + 1, U[i].cpf);
+      printf("Livros reservados pelo usuário %d: %d\n", i + 1, U[i].reservados);
+      sleep(1);
+    }
+  }
 }
 
-void devolver(struct Livro L[]){
+void reservar(struct Livro L[], struct User U[]){
+  int reservado = 0, reservando = 0, cont1 = 0, cont2 = 0; 
+  if(strcmp(L[0].titulo, "") == 0) {
+    printf("\nNenhum livro disponível para reservar.\n");
+    printf("\nRetornando ao menu...\n");
+    sleep(1);
+    return;
+  } else if(strcmp(U[0].cpf, "") == 0) {
+    printf("\nNenhum usuário disponível para fazer uma reserva.\n");
+    printf("\nRetornando ao menu...\n");
+    sleep(1);
+    return;
+  } else {
+    printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+    printf("Qual livro deseja reservar? Digite o número do livro após a listagem.\n");
+    sleep(2);
+    for (int i = 0; strcmp(L[i].titulo, "") != 0; i++) {
+        printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+        printf("[%d]:\n", i + 1);
+        printf("Título do livro %d: %s\n", i + 1, L[i].titulo);
+        printf("Classificação do livro %d: %s\n", i + 1, L[i].classificacao);
+        printf("Autor do livro %d: %s\n", i + 1, L[i].autor);
+        printf("Quantidade de cópias disponíveis do livro %d: %d\n", i + 1, L[i].qtd);
+        printf("Edição do livro %d: %d\n", i + 1, L[i].edicao);
+        printf("Ano de publicação do livro %d: %d\n", i + 1, L[i].ano);
+        cont1++;
+    }
+  }
+  while(1){
+    printf("\nLivro a ser reservado: ");
+    scanf("%d", &reservado);
+    if (reservado > cont1 || reservado <= 0) {
+      printf("\n[ERRO] Opção incorreta, digite uma opção válida de livro disponível.\n\n");
+    } else if (L[reservado - 1].qtd == 1){
+      printf("\n[ERRO] Este livro só tem uma cópia disponível, e esta deve ficar de exemplar dentro da biblioteca. Escolha outro livro para reservar.\n\n");
+      sleep(2);
+    } else {
+      reservado--;
+      L[reservado].qtd--;
+      break;
+    }
+  }
+  printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+  printf("Qual usuário está fazendo a reserva? Digite o número do usuário após a listagem.\n");
+  sleep(2);
+  for (int i = 0; strcmp(U[i].cpf, "") != 0; i++) {
+      printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+      printf("[%d]:\n", i + 1);
+      printf("Nome do usuário %d: %s\n", i + 1, U[i].nome);
+      printf("Sobrenome do usuário %d: %s\n", i + 1, U[i].sobrenome);
+      printf("Matrícula do usuário %d: %s\n", i + 1, U[i].matricula);
+      printf("CPF do usuário %d: %s\n", i + 1, U[i].cpf);
+      printf("Livros reservados pelo usuário %d: %d\n", i + 1, U[i].reservados);
+      cont2++;
+  }
+  while(1){
+  printf("\nUsuário que está fazendo a reserva: ");
+  scanf("%d", &reservando);
+  if (reservando > cont2 || reservando <= 0) {
+    printf("\n[ERRO] Opção incorreta, digite uma opção válida de usuário disponível.\n\n");
+  } else {
+    reservando--;
+    U[reservando].reservados++;
+    break;
+  } 
+  }
+  printf("\nFazendo reserva...\n");
+  sleep(1);
+  printf("\nLivro reservado com sucesso!\n");
+}
+
+void devolver(struct Livro L[], struct User U[]){
+  int devolvido = 0, devolvendo = 0, cont1 = 0, cont2 = 0; 
+  if(strcmp(L[0].titulo, "") == 0) {
+    printf("\nNenhum livro disponível para fazer uma devolução.\n");
+    printf("\nRetornando ao menu...\n");
+    sleep(1);
+    return;
+  } else if(strcmp(U[0].nome, "") == 0) {
+    printf("\nNenhum usuário disponível para fazer uma devolução.\n");
+    printf("\nRetornando ao menu...\n");
+    sleep(1);
+    return;
+  } else {
+    printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+    printf("Qual livro está sendo devolvido? Digite o número do livro após a listagem.\n");
+    sleep(2);
+    for (int i = 0; strcmp(L[i].titulo, "") != 0; i++) {
+        printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+        printf("[%d]:\n", i + 1);
+        printf("Título do livro %d: %s\n", i + 1, L[i].titulo);
+        printf("Classificação do livro %d: %s\n", i + 1, L[i].classificacao);
+        printf("Autor do livro %d: %s\n", i + 1, L[i].autor);
+        printf("Quantidade de cópias disponíveis do livro %d: %d\n", i + 1, L[i].qtd);
+        printf("Edição do livro %d: %d\n", i + 1, L[i].edicao);
+        printf("Ano de publicação do livro %d: %d\n", i + 1, L[i].ano);
+        cont1++;
+    }
+  }
+  while(1){
+    printf("\nLivro a ser devolvido: ");
+    scanf("%d", &devolvido);
+    if (devolvido > cont1 || devolvido <= 0) {
+      printf("\n[ERRO] Opção incorreta, digite uma opção válida de livro disponível.\n\n");
+    } else {
+      devolvido--;
+      L[devolvido].qtd++;
+      break;
+    }
+  }
+  printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+  printf("Qual usuário está fazendo a devolução? Digite o número do usuário após a listagem.\n");
+  sleep(2);
+  for (int i = 0; strcmp(U[i].cpf, "") != 0; i++) {
+      printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+      printf("[%d]:\n", i + 1);
+      printf("Nome do usuário %d: %s\n", i + 1, U[i].nome);
+      printf("Sobrenome do usuário %d: %s\n", i + 1, U[i].sobrenome);
+      printf("Matrícula do usuário %d: %s\n", i + 1, U[i].matricula);
+      printf("CPF do usuário %d: %s\n", i + 1, U[i].cpf);
+      printf("Livros reservados pelo usuário %d: %d\n", i + 1, U[i].reservados);
+      cont2++;
+  }
+  while(1){
+  printf("\nUsuário que está fazendo a reserva: ");
+  scanf("%d", &devolvendo);
+  if (devolvendo > cont2 || devolvendo <= 0) {
+    printf("\n[ERRO] Opção incorreta, digite uma opção válida de usuário disponível.\n\n");
+  } else if (U[devolvendo - 1].reservados == 0) {
+    printf("\n[ERRO] Este usuário não possui nenhum livro reservado para fazer uma devolução.\n\n");
+  } else {
+    devolvendo--;
+    U[devolvendo].reservados--;
+    break;
+  } 
+  }
+  printf("\nFazendo devolução...\n");
+  sleep(1);
+  printf("\nLivro devolvido com sucesso!\n");
 }
 
 void menu(){
@@ -181,24 +413,26 @@ void menu(){
 	while(1){
 		printf("\nBem vindo ao Sistema de Controle de Livros da UFU\n");
 		printf("\n1- Cadastrar livro");
-    printf("\n2- Atualizar livro");
-    printf("\n3- Cadastrar usuário");
+    printf("\n2- Cadastrar usuário");
+    printf("\n3- Atualizar livro");
     printf("\n4- Atualizar usuário");
 		printf("\n5- Mostrar todos os livros");
-    printf("\n6- Reservar livro");
-    printf("\n7- Devolver livro");
-		printf("\n8- Sair ");
+    printf("\n6- Mostrar todos os usuários");
+    printf("\n7- Reservar livro");
+    printf("\n8- Devolver livro");
+		printf("\n9- Sair ");
 		printf("\n\nDigite opção: ");
 		scanf("%d", &opcao);
   
 		if(opcao == 1) cadastroL(L);
-    if(opcao == 2) atualizarL(L);
-    if(opcao == 3) cadastroU(U);
+    if(opcao == 2) cadastroU(U);
+    if(opcao == 3) atualizarL(L);
     if(opcao == 4) atualizarU(U);
-		if(opcao == 5) mostra(L);
-    if(opcao == 6) reservar(L);
-    if(opcao == 7) devolver(L);
-		if(opcao == 8) {
+		if(opcao == 5) mostraL(L);
+    if(opcao == 6) mostraU(U);
+    if(opcao == 7) reservar(L, U);
+    if(opcao == 8) devolver(L, U);
+		if(opcao == 9) {
       printf("\nAté mais!\n");
       return;
     };
