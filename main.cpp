@@ -15,9 +15,30 @@ struct User {
 
 void cadastroL(struct Livro L[]){
   static int cont;
+  char verTitulo[50] = "";
+  int aux = 0;
+
   printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
+
   printf("Título do livro: ");
-  scanf(" %[^\n]s", L[cont].titulo);
+  scanf(" %[^\n]s", verTitulo);
+  while(1) {  
+    for (int i = 0; strcmp(L[i].titulo, "") != 0; i++) {
+      if (strcasecmp (verTitulo, L[i].titulo) == 0) {
+        printf("\n[ERRO] Este título já está cadastrado, escolha outro.\n\n");
+        aux = 1;
+        break;
+      }
+    }
+    if (aux == 1) {
+      printf("Título do livro: ");
+      scanf(" %[^\n]s", verTitulo);
+      aux = 0;
+    } else {
+      strcpy (L[cont].titulo, verTitulo);
+      break;
+    }
+  } 
   printf("Classificação do livro: ");
   scanf(" %[^\n]s", L[cont].classificacao);
   printf("Autor do livro: ");
@@ -43,7 +64,9 @@ void cadastroL(struct Livro L[]){
 }
 
 void atualizarL(struct Livro L[]){
-  int op = 0, att = 0, cont = 0;
+  int op = 0, att = 0, cont = 0, aux = 0;
+  char verTitulo[50] = "";
+
   if(strcmp(L[0].titulo, "") == 0) {
     printf("\nNenhum livro para atualizar.\n");
     printf("\nRetornando ao menu...\n");
@@ -91,7 +114,29 @@ void atualizarL(struct Livro L[]){
   switch(att) {
     case 1:
       printf("Novo título: ");
-      scanf(" %[^\n]s", L[op].titulo);
+      scanf(" %[^\n]s", verTitulo);
+      while (strcasecmp (verTitulo, L[op].titulo) == 0) {
+        printf("\n[ERRO] Este já é o título atual do livro, digite um título diferente.\n\n");
+        printf("Novo título: ");
+        scanf(" %[^\n]s", verTitulo);
+      }
+      while(1) {  
+        for (int i = 0; strcmp(L[i].titulo, "") != 0; i++) {
+          if (strcasecmp (verTitulo, L[i].titulo) == 0) {
+            printf("\n[ERRO] Este título já está cadastrado, escolha outro.\n\n");
+            aux = 1;
+            break;
+          }
+        }
+        if (aux == 1) {
+          printf("Novo título: ");
+          scanf(" %[^\n]s", verTitulo);
+          aux = 0;
+        } else {
+          strcpy (L[op].titulo, verTitulo);
+          break;
+        }
+      } 
       break;
     case 2:
       printf("Nova classificação: ");
@@ -130,17 +175,54 @@ void atualizarL(struct Livro L[]){
 
 void cadastroU(struct User U[]){
   static int cont;
+  int aux1 = 0, aux2 = 0;
+  char verCPF[20] = "", verMatricula[50] = "";
+
   printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
   printf("Nome do usuário: ");
   scanf(" %[^\n]s", U[cont].nome);
   printf("Sobrenome do usuário: ");
   scanf(" %[^\n]s", U[cont].sobrenome);
   printf("Matrícula do usuário: ");
-  scanf(" %[^\n]s", U[cont].matricula);
+  scanf(" %[^\n]s", verMatricula);
+  while(1) {  
+    for (int i = 0; strcmp(U[i].cpf, "") != 0; i++) {
+      if (strcasecmp (verMatricula, U[i].matricula) == 0) {
+        printf("\n[ERRO] Este número de matrícula já está cadastrado, escolha outro.\n\n");
+        aux2 = 1;
+        break;
+      }
+    }
+    if (aux2 == 1) {
+      printf("Matrícula do usuário: ");
+      scanf(" %[^\n]s", verMatricula);
+      aux2 = 0;
+    } else {
+      strcpy (U[cont].matricula, verMatricula);
+      break;
+    }
+  }
   while(1){
     printf("CPF do usuário: ");
-    scanf(" %[^\n]s", U[cont].cpf);  
-    if(strlen(U[cont].cpf) != 14) {
+    scanf(" %[^\n]s", verCPF);
+    while(1) {  
+    for (int i = 0; strcmp(U[i].cpf, "") != 0; i++) {
+      if (strcasecmp (verCPF, U[i].cpf) == 0) {
+        printf("\n[ERRO] Este CPF já está cadastrado, escolha outro.\n\n");
+        aux1 = 1;
+        break;
+      }
+    }
+    if (aux1 == 1) {
+      printf("CPF do usuário: ");
+      scanf(" %[^\n]s", verCPF);
+      aux1 = 0;
+    } else {
+      strcpy (U[cont].cpf, verCPF);
+      break;
+    }
+  } 
+    if(strlen(verCPF) != 14) {
       printf("\n[ERRO] CPF deve conter \".\" e \"-\" (exemplo: 123.456.789-00)\n\n");
     } else {
       break;
@@ -155,7 +237,9 @@ void cadastroU(struct User U[]){
 }
 
 void atualizarU(struct User U[]){
-  int op = 0, att = 0, cont = 0;
+  int op = 0, att = 0, cont = 0, aux1 = 0, aux2 = 0;
+  char verCPF[20] = "", verMatricula[50] = "";
+
   if(strcmp(U[0].cpf, "") == 0) {
     printf("\nNenhum usuário para atualizar.\n");
     printf("\nRetornando ao menu...\n");
@@ -180,6 +264,9 @@ void atualizarU(struct User U[]){
     scanf("%d", &op);
     if(op > cont || op <= 0){
       printf("\n[ERRO] Opção inválida. Escolha uma opção de usuário disponível.\n\n");
+    } else {
+      op--;
+      break;
     }
   }
   printf("\n*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\n\n");
@@ -206,17 +293,61 @@ void atualizarU(struct User U[]){
       break;
     case 3:
       printf("Nova matrícula: ");
-      scanf(" %[^\n]s", U[op].matricula);
+      scanf(" %[^\n]s", verMatricula);
+      while (strcasecmp(verMatricula, U[op].matricula) == 0) {
+        printf("\n[ERRO] Este número de matrícula já é o atual do usuário. Digite outro.\n\n");
+        printf("Nova matrícula: ");
+        scanf(" %[^\n]s", verMatricula);
+      }
+      while(1) {  
+        for (int i = 0; strcmp(U[i].cpf, "") != 0; i++) {
+          if (strcasecmp (verMatricula, U[i].matricula) == 0) {
+            printf("\n[ERRO] Este número de matrícula já está cadastrado, escolha outro.\n\n");
+            aux2 = 1;
+            break;
+          }
+        }
+        if (aux2 == 1) {
+          printf("Nova matrícula: ");
+          scanf(" %[^\n]s", verMatricula);
+          aux2 = 0;
+        } else {
+          strcpy (U[op].matricula, verMatricula);
+          break;
+        }
+      }
       break;
     case 4:
       while(1){
+      printf("Novo CPF: ");
+      scanf(" %[^\n]s", verCPF);  
+      while (strcasecmp(verCPF, U[op].cpf) == 0) {
+        printf("\n[ERRO] Este CPF já é o atual do usuário. Digite outro.\n\n");
         printf("Novo CPF: ");
-        scanf(" %[^\n]s", U[op].cpf);  
-        if(strlen(U[op].cpf) != 14) {
-          printf("\n[ERRO] CPF deve conter \".\" e \"-\" (exemplo: 123.456.789-00)\n\n");
+        scanf(" %[^\n]s", verCPF);
+      }
+      while(1) {  
+        for (int i = 0; strcmp(U[i].cpf, "") != 0; i++) {
+          if (strcasecmp (verCPF, U[i].cpf) == 0) {
+            printf("\n[ERRO] Este CPF já está cadastrado, escolha outro.\n\n");
+            aux1 = 1;
+            break;
+          }
+        }
+        if (aux1 == 1) {
+          printf("Novo CPF: ");
+          scanf(" %[^\n]s", verCPF);
+          aux1 = 0;
         } else {
+          strcpy (U[op].cpf, verCPF);
           break;
         }
+      }
+      if(strlen(U[op].cpf) != 14) {
+        printf("\n[ERRO] CPF deve conter \".\" e \"-\" (exemplo: 123.456.789-00)\n\n");
+      } else {
+        break;
+      }
       } 
       break;
     default:
@@ -411,6 +542,7 @@ void menu(){
   struct User U[30];
 
 	while(1){
+    while (1) {
 		printf("\nBem vindo ao Sistema de Controle de Livros da UFU\n");
 		printf("\n1- Cadastrar livro");
     printf("\n2- Cadastrar usuário");
@@ -423,7 +555,12 @@ void menu(){
 		printf("\n9- Sair ");
 		printf("\n\nDigite opção: ");
 		scanf("%d", &opcao);
-  
+    if (opcao < 1 || opcao > 9) { 
+      printf("\n[ERRO] Opção inválida. Escolha uma opção válida.\n");
+    } else {
+      break;
+    }
+    }
 		if(opcao == 1) cadastroL(L);
     if(opcao == 2) cadastroU(U);
     if(opcao == 3) atualizarL(L);
@@ -433,7 +570,9 @@ void menu(){
     if(opcao == 7) reservar(L, U);
     if(opcao == 8) devolver(L, U);
 		if(opcao == 9) {
-      printf("\nAté mais!\n");
+      printf("\nEncerrando o programa...\n");
+      sleep(1);
+      printf("\nAté mais!\n\n");
       return;
     };
 	}
